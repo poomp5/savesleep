@@ -3,7 +3,7 @@ import { Inter , Kanit } from 'next/font/google'
 import './globals.css'
 import BottomNav from './components/bottom-nav'
 
-const inter = Inter({ subsets: ['latin'] })
+
 const kanit = Kanit({ subsets: ['thai'], weight: '400' })
 
 export const metadata: Metadata = {
