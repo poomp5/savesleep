@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Moon, Sun, Bell } from "lucide-react";
+import Swal from "sweetalert2";
 
 export default function SettingsPage() {
     const [remindMe, setRemindMe] = useState(false);
@@ -28,7 +29,7 @@ export default function SettingsPage() {
         const bedTimeMinutes = bedTime.split(":").map(Number).reduce((acc, curr) => acc * 60 + curr, 0);
         const wakeTimeMinutes = wakeTime.split(":").map(Number).reduce((acc, curr) => acc * 60 + curr, 0);
 
-        let startAngle = (bedTimeMinutes / (24 * 60)) * 360;
+        const startAngle = (bedTimeMinutes / (24 * 60)) * 360;
         let endAngle = (wakeTimeMinutes / (24 * 60)) * 360;
 
         if (endAngle < startAngle) endAngle += 360;
@@ -58,6 +59,15 @@ export default function SettingsPage() {
         const y = radius * Math.sin((angle - 90) * (Math.PI / 180)); // Adjust for 12 o'clock position
         return { x, y };
     }, [wakeTime]);
+
+    const handleSave = () => {
+        Swal.fire({
+            icon: 'success',
+            title: 'บันทึกสำเร็จ',
+            text: 'การตั้งค่าเวลานอนถูกบันทึกเรียบร้อยแล้ว!',
+        });
+    };
+
     return (
         <div className="min-h-screen bg-gray-800 text-white p-6 pb-24">
             <div className="mx-4 space-y-8">
@@ -156,7 +166,12 @@ export default function SettingsPage() {
                         </div>
                     </div>
                 </div>
-                <button className="bg-gray-100 hover:bg-gray-300 text-gray-800 w-full px-4 py-2 rounded-lg">บันทึกตั้งค่า</button>
+                <button
+                    className="bg-gray-100 hover:bg-gray-300 text-gray-800 w-full px-4 py-2 rounded-lg"
+                    onClick={handleSave}
+                >
+                    บันทึกตั้งค่า
+                </button>
             </div>
         </div>
     );

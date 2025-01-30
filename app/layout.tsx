@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter , Kanit } from 'next/font/google'
+import { Kanit } from 'next/font/google'
 import './globals.css'
 import BottomNav from './components/bottom-nav'
 

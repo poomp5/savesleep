@@ -52,7 +52,6 @@ const SleepTracker = () => {
             </div>
           </div>
 
-          {/* Duration Card */}
           <div className="bg-gray-700 rounded-3xl p-6">
             <h3 className="text-base whitespace-nowrap md:text-xl mb-4">ระยะเวลานอน</h3>
             <div className="text-4xl font-semibold mb-4 whitespace-nowrap">

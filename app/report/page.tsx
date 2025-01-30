@@ -6,11 +6,19 @@ import { Moon, BedDouble, Activity } from "lucide-react";
 import Image from "next/image";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
+import { User } from "@supabase/supabase-js";
+
+type SleepLog = {
+    sleep: number;
+    quality: number;
+    emotional: number;
+    created_at: string;
+};
 
 export default function Home() {
     const [activeTab, setActiveTab] = useState("day");
-    const [sleepData, setSleepData] = useState<any[]>([]);
-    const [userData, setUserData] = useState<any>(null);
+    const [sleepData, setSleepData] = useState<{ time: number, value: number }[]>([]);
+    const [userData, setUserData] = useState<User | null>(null);
     const supabase = createClientComponentClient();
     const router = useRouter();
 
@@ -33,7 +41,7 @@ export default function Home() {
                 return;
             }
 
-            const chartData = data.map(log => ({
+            const chartData = data.map((log: SleepLog) => ({
                 time: log.sleep,
                 value: calculateSleepQuality(log)
             }));
@@ -42,11 +50,12 @@ export default function Home() {
         }
 
         fetchUserAndSleepData();
-    }, []);
+    }, [router, supabase]);
 
-    const calculateSleepQuality = (log: any) => {
+    const calculateSleepQuality = (log: SleepLog) => {
         return (log.quality + log.emotional) / 2;
     };
+
     const calculateSleepStats = () => {
         if (sleepData.length === 0) return { bedTime: '0h', sleepTime: '0h', activity: '0h' };
 

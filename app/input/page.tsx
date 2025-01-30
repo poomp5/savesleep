@@ -8,7 +8,7 @@ import { Moon, Sun } from 'lucide-react';
 export default function SleepTrackerPage() {
     const supabase = createClientComponentClient();
     const router = useRouter();
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<{ email: string } | null>(null);
     const [sleepData, setSleepData] = useState({
         sleep: '',
         awake: '',
@@ -24,13 +24,13 @@ export default function SleepTrackerPage() {
         async function fetchUser() {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
-                setUser(user);
+                setUser({ email: user.email ?? '' });
             } else {
                 router.push('/login');
             }
         }
         fetchUser();
-    }, []);
+    }, [router, supabase.auth]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -56,7 +56,6 @@ export default function SleepTrackerPage() {
 
             if (error) throw error;
 
-            // Use SweetAlert for success message
             Swal.fire({
                 title: 'สำเร็จ!',
                 text: 'บันทึกข้อมูลสำเร็จ',
@@ -76,14 +75,13 @@ export default function SleepTrackerPage() {
             });
         }
     };
-    if (!user) return <div>กำลังโหลด...</div>;
 
     return (
         <div className="mx-auto p-6 bg-gray-800 text-white min-h-screen">
             <div className="flex flex-col md:flex-row md:justify-between items-center mb-6">
                 <h1 className="text-2xl font-semibold w-full md:w-auto mb-4 md:mb-0">บันทึกการนอน</h1>
                 <div className="w-full md:w-auto flex flex-col md:flex-row items-center md:items-end">
-                    <span className="mr-2 mb-2 md:mb-0">{user.email}</span>
+                    <span className="mr-2 mb-2 md:mb-0">{user?.email}</span>
                     <button
                         onClick={async () => {
                             // SweetAlert confirmation popup
@@ -112,7 +110,6 @@ export default function SleepTrackerPage() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {error && <div className="text-red-500 mb-4">{error}</div>}
-
                 <div className="bg-gray-700 rounded-xl p-4 space-y-4">
                     <div className="flex items-center gap-4">
                         <Moon className="w-6 h-6" />
@@ -205,7 +202,6 @@ export default function SleepTrackerPage() {
                         className="w-full"
                     />
                 </div>
-
                 <div className="bg-gray-700 rounded-xl p-4">
                     <label className="block text-sm mb-2">บันทึกเพิ่มเติม</label>
                     <textarea
@@ -217,7 +213,6 @@ export default function SleepTrackerPage() {
                         placeholder="บันทึกรายละเอียดเพิ่มเติม..."
                     />
                 </div>
-
                 <button
                     type="submit"
                     className="w-full bg-white text-gray-800 font-semibold py-3 rounded-xl transition duration-200"
