@@ -71,7 +71,7 @@ export default function LoginForm() {
 
     return (
         <div className="min-h-screen bg-gray-800 flex items-center justify-center">
-            <div className="bg-gray-700 p-8 rounded-xl w-full max-w-md">
+            <div className="bg-gray-700 p-8 rounded-xl w-full max-w-md mx-4">
                 <h2 className="text-2xl font-bold mb-6 text-white text-center">Login</h2>
                 {error && <div className="text-red-500 mb-4">{error}</div>}
                 <form onSubmit={handleLogin} className="space-y-4">
@@ -98,16 +98,16 @@ export default function LoginForm() {
                     <div className="space-y-4">
                         <button
                             type="submit"
-                            className="w-full bg-white text-gray-800 py-2 rounded-lg font-semibold"
+                            className="w-full bg-white text-gray-800 py-2 rounded-lg"
                         >
-                            Login
+                            เข้าสู่ระบบ
                         </button>
                         <button
                             type="button"
                             onClick={handleSignUp}
-                            className="w-full bg-gray-600 text-white py-2 rounded-lg font-semibold"
+                            className="w-full bg-gray-600 text-white py-2 rounded-lg"
                         >
-                            Sign Up
+                            สมัครสมาชิก
                         </button>
                     </div>
                 </form>
