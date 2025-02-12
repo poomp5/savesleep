@@ -3,13 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Play, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+
 
 const SleepTracker = () => {
   const supabase = createClientComponentClient();
-  const router = useRouter();
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<{ email: string } | null>(null);
+  const [, setUser] = useState<{ email: string } | null>(null);
 
   useEffect(() => {
     async function fetchUser() {

@@ -16,7 +16,9 @@ export default function SleepTrackerPage() {
         emotional: 5,
         factor: '',
         stress: 5,
-        note: ''
+        note: '',
+        sleeptime: 0,
+        factortime: 0
     });
     const [error, setError] = useState('');
 
@@ -32,10 +34,42 @@ export default function SleepTrackerPage() {
         fetchUser();
     }, [router, supabase.auth]);
 
+
+    const calculateSleepTime = (sleep: string, awake: string) => {
+
+        if (!sleep || !awake) return 0;
+        const [sleepH, sleepM] = sleep.split(":").map(Number);
+        const [awakeH, awakeM] = awake.split(":").map(Number);
+
+
+        const sleepMinutes = sleepH * 60 + sleepM;
+        let awakeMinutes = awakeH * 60 + awakeM;
+
+
+        if (awakeMinutes < sleepMinutes) {
+            awakeMinutes += 24 * 60;
+        }
+
+        return awakeMinutes - sleepMinutes;
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setSleepData(prev => ({ ...prev, [name]: value }));
+        setSleepData(prev => ({
+            ...prev,
+            [name]: value,
+        }));
+
     };
+
+    useEffect(() => {
+        setSleepData(prev => ({
+            ...prev,
+            sleeptime: calculateSleepTime(prev.sleep, prev.awake)
+        }));
+    }, [sleepData.sleep, sleepData.awake]);
+
+    console.log(sleepData.sleeptime, sleepData.sleep, sleepData.awake)
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -43,6 +77,8 @@ export default function SleepTrackerPage() {
 
         try {
             if (!user) throw new Error('User not authenticated');
+
+
 
             const { data, error } = await supabase
                 .from('savesleep')
@@ -178,17 +214,37 @@ export default function SleepTrackerPage() {
                     </div>
                 </div>
 
-                <div className="bg-gray-700 rounded-xl p-4">
-                    <label className="block text-sm mb-2">ปัจจัยที่มีผลต่อการนอน</label>
-                    <input
-                        type="text"
-                        name="factor"
-                        value={sleepData.factor}
-                        onChange={handleChange}
-                        className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white"
-                        placeholder="เช่น ดื่มกาแฟ, ออกกำลังกาย"
-                    />
+
+                <div className=" flex gap-5 bg-gray-700 rounded-xl p-4 justify-between items-center">
+                    <div className="w-full">
+                        <label className="block text-sm mb-2">ปัจจัยที่มีผลต่อการนอน</label>
+                        <input
+                            type="text"
+                            name="factor"
+                            value={sleepData.factor}
+                            onChange={handleChange}
+                            className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white"
+                            placeholder="เช่น ดื่มกาแฟ, ออกกำลังกาย"
+                        />
+                    </div>
+                    <div className="w-full">
+                        <label className="block text-sm mb-2">เวลาของปัจจัย</label>
+                        <select 
+                            name="factortime"
+                            value={sleepData.factortime}
+                            onChange={handleChange}
+                            className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white">
+                            {Array.from({ length: 13 }, (_, i) => i * 10).map((value) => (
+                                <option key={value} value={value}>
+                                    {value}
+                                </option>
+                            ))}
+                        </select>
+
+                    </div>
+
                 </div>
+
 
                 <div className="bg-gray-700 rounded-xl p-4">
                     <label className="block text-sm mb-2">ระดับความเครียด (1-10)</label>
