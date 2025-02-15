@@ -219,7 +219,7 @@ export default function Home() {
                 <div>
                     <h2 className="text-lg font-semibold mb-4">{tabLabels[activeTab]}</h2>
                     <div className="w-full">
-                        <div className="grid grid-cols-3 bg-gray-800 rounded-lg p-1 gap-1 mb-4">
+                        <div className="grid grid-cols-2 bg-gray-800 rounded-lg p-1 gap-1 mb-4">
                             {["สัปดาห์", "เดือน"].map((tab) => (
                                 <button
                                     key={tab}
