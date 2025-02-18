@@ -84,6 +84,10 @@ export default function Home() {
 
     }, [router, supabase]);
 
+    const calculateSleepQuality = (log: SleepLog) => {
+        return (log.quality + log.emotional) / 2;
+    };
+
     const today = new Date();
 
     const startOfWeekDate = startOfWeek(today, { weekStartsOn: 1 });
@@ -156,9 +160,7 @@ export default function Home() {
         เดือน: ["เวลาบนเตียงเฉลี่ยตามเดือน", "เวลานอนหลับเฉลี่ยตามเดือน", "เวลาทำกิจกรรมเฉลี่ยตามเดือน"],
     };
 
-    const calculateSleepQuality = (log: SleepLog) => {
-        return (log.quality + log.emotional) / 2;
-    };
+
 
     const calculateSleepStats = () => {
         if (sleepData.length === 0) return { bedTime: '0h', sleepTime: '0h', activity: '0h' };
@@ -219,7 +221,7 @@ export default function Home() {
                 <div>
                     <h2 className="text-lg font-semibold mb-4">{tabLabels[activeTab]}</h2>
                     <div className="w-full">
-                        <div className="grid grid-cols-2 bg-gray-800 rounded-lg p-1 gap-1 mb-4">
+                        <div className="grid grid-cols-3 bg-gray-800 rounded-lg p-1 gap-1 mb-4">
                             {["สัปดาห์", "เดือน"].map((tab) => (
                                 <button
                                     key={tab}

@@ -1,14 +1,80 @@
 "use client";
-
-import { useState, useMemo } from "react";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useState, useMemo, useEffect } from "react";
 import { Moon, Sun, Bell } from "lucide-react";
 import Swal from "sweetalert2";
+import { useRouter } from 'next/navigation';
 
 export default function SettingsPage() {
     const [remindMe, setRemindMe] = useState(false);
     const [bedTime, setBedTime] = useState("00:00");
     const [wakeTime, setWakeTime] = useState("06:00");
+    const [user, setUser] = useState<{ email: string } | null>(null);
+    const supabase = createClientComponentClient();
+    const router = useRouter();
+    const [settingData, setSettingData] = useState
+    ({sleep_goal: 0, 
+        emotional_goal: 0,
+        quality_goal: 0, 
+        sleep: '', 
+        awake: ''});
 
+
+        useEffect(() => {
+            async function fetchandCheckUser() {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    setUser({ email: user.email ?? '' });
+                } else {
+                    router.push('/login');
+                }
+
+                const { data } = await supabase
+                .from('user_setting')
+                .select('*')
+                .eq('user_email', user?.email)
+              
+                const safeData = data ?? [];
+
+                if (safeData?.length == 0) {
+
+                    await supabase
+                    .from('user_setting')
+                    .insert({
+                        ...settingData,
+                        user_email: user?.email
+                      });
+
+                } else if (safeData.length > 1) {
+                    const idsToDelete = safeData.slice(1).map(entry => entry.id);
+
+                    await supabase
+                      .from('user_setting')
+                      .delete()
+                      .in('id', idsToDelete);
+                } 
+                else {
+                    const firstItem = safeData[0];
+                    setSettingData({
+                        sleep_goal: firstItem.sleep_goal,
+                        emotional_goal: firstItem.emotional_goal,
+                        quality_goal: firstItem.quality_goal,
+                        sleep: firstItem.sleep,
+                        awake: firstItem.awake,
+                      });
+
+                 
+
+                     
+                      setBedTime(firstItem.sleep.slice(0,2) + ":" +  firstItem.sleep.slice(3,5))
+                      setWakeTime(firstItem.awake.slice(0,2) + ":" +  firstItem.awake.slice(3,5))
+                    }
+            }
+            fetchandCheckUser();
+        }, [router, supabase.auth]);
+
+
+     
     const sleepDuration = useMemo(() => {
         const [bedHours, bedMinutes] = bedTime.split(":").map(Number);
         const [wakeHours, wakeMinutes] = wakeTime.split(":").map(Number);
@@ -21,10 +87,19 @@ export default function SettingsPage() {
             minutes += 60;
             hours -= 1;
         }
+        setSettingData(prev => ({
+            ...prev,
+            awake: wakeTime+":00+07",
+            sleep: bedTime+":00+07",
+            sleep_goal: (hours * 60) + minutes
+        }));
 
-        return `${hours}h ${minutes}m`;
+        const format = `${hours}h ${minutes}m`;
+        return {format,hours,minutes};
     }, [bedTime, wakeTime]);
 
+
+  
     const arcStyle = useMemo(() => {
         const bedTimeMinutes = bedTime.split(":").map(Number).reduce((acc, curr) => acc * 60 + curr, 0);
         const wakeTimeMinutes = wakeTime.split(":").map(Number).reduce((acc, curr) => acc * 60 + curr, 0);
@@ -41,6 +116,8 @@ export default function SettingsPage() {
             background: `conic-gradient(from ${startAngle}deg, ${arcColor} 0deg ${endAngle - startAngle}deg, transparent ${endAngle - startAngle}deg 360deg)`
         };
     }, [bedTime, wakeTime]);
+
+    
 
     const moonPosition = useMemo(() => {
         const bedTimeMinutes = bedTime.split(":").map(Number).reduce((acc, curr) => acc * 60 + curr, 0);
@@ -59,8 +136,48 @@ export default function SettingsPage() {
         const y = radius * Math.sin((angle - 90) * (Math.PI / 180)); // Adjust for 12 o'clock position
         return { x, y };
     }, [wakeTime]);
+    
+        const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+            const { name, value } = e.target;
+            setSettingData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+           
+        };
 
-    const handleSave = () => {
+        console.log(wakeTime,bedTime)
+
+        /*const NewsettingData = useMemo(() => {
+        return {
+          sleep_goal: settingData.sleep_goal,
+          emotional_goal: settingData.emotional_goal,
+          quality_goal: settingData.quality_goal,
+          sleep: settingData.sleep,
+          awake: settingData.awake,
+        };
+      }, [settingData]);
+
+        console.log(NewsettingData)*/
+
+        /*useEffect(() => {
+            console.log("Setting data updated:", settingData);
+        setSettingData(prev => ({
+            ...prev,
+        }));
+    }, [settingData]); */
+      
+
+   
+
+    const handleSave = async () => {
+
+        await supabase
+        .from('user_setting')
+        .update({...settingData})
+        .eq('user_email', user?.email)
+
+
         Swal.fire({
             icon: 'success',
             title: 'บันทึกสำเร็จ',
@@ -102,7 +219,7 @@ export default function SettingsPage() {
                         })}
 
                         {/* Center Time Display */}
-                        <div className="text-3xl font-bold">{sleepDuration}</div>
+                        <div className="text-3xl font-bold">{sleepDuration.format}</div>
                         <div
                             className="absolute inset-0 rounded-full"
                             style={arcStyle}
@@ -166,11 +283,47 @@ export default function SettingsPage() {
                         </div>
                     </div>
                 </div>
+                <div className="bg-gray-700 rounded-xl p-4 space-y-4">
+                    <div>
+                        <label className="block text-sm mb-2">คุณภาพการนอน (1-10)</label>
+                        <input
+                            type="range"
+                            name="quality_goal"
+                            min="1"
+                            max="10"
+                            value={settingData.quality_goal}
+                            onChange={handleChange}
+                            className="w-full"
+                        />
+                        <div className="flex justify-between text-xs">
+                            <span>แย่</span>
+                            <span>ดีมาก</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm mb-2">อารมณ์ (1-10)</label>
+                        <input
+                            type="range"
+                            name="emotional_goal"
+                            min="1"
+                            max="10"
+                            value={Number(settingData.emotional_goal)}
+                            onChange={handleChange}
+                            className="w-full"
+                        />
+                        <div className="flex justify-between text-xs">
+                            <span>แย่</span>
+                            <span>ดีมาก</span>
+                        </div>
+                    </div>
+                </div>
+
                 <button
                     className="bg-gray-100 hover:bg-gray-300 text-gray-800 w-full px-4 py-2 rounded-lg"
                     onClick={handleSave}
                 >
-                    บันทึกตั้งค่า
+                    บันทึกข้อมูล
                 </button>
             </div>
         </div>
