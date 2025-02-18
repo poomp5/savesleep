@@ -221,7 +221,7 @@ export default function Home() {
                 <div>
                     <h2 className="text-lg font-semibold mb-4">{tabLabels[activeTab]}</h2>
                     <div className="w-full">
-                        <div className="grid grid-cols-3 bg-gray-800 rounded-lg p-1 gap-1 mb-4">
+                        <div className="grid grid-cols-2 bg-gray-800 rounded-lg p-1 gap-1 mb-4">
                             {["สัปดาห์", "เดือน"].map((tab) => (
                                 <button
                                     key={tab}
@@ -270,7 +270,7 @@ export default function Home() {
                 </div>
 
                 {/* Sleep Stats Cards */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {[
                         { icon: BedDouble, label: statlabels[activeTab][0], color: "text-pink-500", value: stats.bedTime },
                         { icon: Moon, label: statlabels[activeTab][1], color: "text-blue-500", value: stats.sleepTime },
