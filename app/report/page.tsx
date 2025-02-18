@@ -32,11 +32,6 @@ export default function Home() {
 
         return `${day}-${month}-${year}`;
     }
-
-
-
-
-
     const [activeTab, setActiveTab] = useState("สัปดาห์");
     const [sleepData, setSleepData] = useState<{ time: string, value: number, sleeptime: number, factortime: number }[]>([]);
     const [userData, setUserData] = useState<User | null>(null);
@@ -147,8 +142,6 @@ export default function Home() {
 
         });
 
-
-
     }
     const tabLabels: Record<string, string> = {
         สัปดาห์: "สถิติการนอนประจำสัปดาห์นี้",
@@ -159,8 +152,6 @@ export default function Home() {
         สัปดาห์: ["เวลาบนเตียงเฉลี่ยตามสัปดาห์", "เวลานอนหลับเฉลี่ยตามสัปดาห์", "เวลาทำกิจกรรมเฉลี่ยตามสัปดาห์"],
         เดือน: ["เวลาบนเตียงเฉลี่ยตามเดือน", "เวลานอนหลับเฉลี่ยตามเดือน", "เวลาทำกิจกรรมเฉลี่ยตามเดือน"],
     };
-
-
 
     const calculateSleepStats = () => {
         if (sleepData.length === 0) return { bedTime: '0h', sleepTime: '0h', activity: '0h' };
@@ -173,14 +164,7 @@ export default function Home() {
         avgFac = filtered.reduce((a, b) => a += b.factortime / filtered.length, 0);
         sleepTime = filtered.reduce((a, b) => a += (b.sleeptime - b.factortime) / filtered.length, 0);
         bedTime = filtered.reduce((a, b) => a += b.sleeptime / filtered.length, 0);
-
-
-
-
-       
-
         return { bedTime: formatSleepTime(bedTime), sleepTime: formatSleepTime(sleepTime), activity: formatSleepTime(avgFac) }
-
 
     };
 
@@ -268,8 +252,6 @@ export default function Home() {
                         </div>
                     </div>
                 </div>
-
-                {/* Sleep Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {[
                         { icon: BedDouble, label: statlabels[activeTab][0], color: "text-pink-500", value: stats.bedTime },
